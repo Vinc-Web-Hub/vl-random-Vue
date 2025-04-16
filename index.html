@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Vue + Node.js Mini API</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+</head>
+<body>
+  <div id="app">
+    <h1>Vue + Node.js Demo</h1>
+    <p v-if="error">{{ error }}</p>
+    <p v-else>
+      <strong>Random Number:</strong> {{ number }}<br>
+      <strong>Server Time:</strong> {{ formattedTime }}
+    </p>
+    <button @click="fetchData">Get New Data</button>
+  </div>
+
+  <script>
+    const { createApp } = Vue;
+
+    createApp({
+      data() {
+        return {
+          number: null,
+          time: null,
+          error: null
+        };
+      },
+      computed: {
+        formattedTime() {
+          return this.time ? new Date(this.time).toLocaleString() : '';
+        }
+      },
+      methods: {
+        fetchData() {
+          fetch("/api/random")
+            .then(response => {
+              if (!response.ok) throw new Error("Request failed");
+              return response.json();
+            })
+            .then(data => {
+              this.number = data.number;
+              this.time = data.time;
+              this.error = null;
+            })
+            .catch(err => {
+              this.error = "Error fetching data from server.";
+              this.number = null;
+              this.time = null;
+            });
+        }
+      }
+    }).mount("#app");
+  </script>
+</body>
+</html>
